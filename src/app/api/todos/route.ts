@@ -4,12 +4,19 @@ const DATA_SOURCE_URL = process.env.DATA_SOURCE_URL as string;
 
 const API_KEY: string = process.env.API_KEY as string;
 
-export async function GET() {
+export async function GET(request: Request) {
+  const origin = request.headers.get('origin');
   const res = await fetch(DATA_SOURCE_URL);
 
   const todos: Todo[] = await res.json();
 
-  return NextResponse.json(todos);
+  // return NextResponse.json(todos); // this response will block by CORS
+  return new NextResponse(JSON.stringify(todos), {
+    headers: {
+      'Access-Control-Allow-Origin': origin || '*',
+      'Content-Type': 'application/json',
+    },
+  });
 }
 
 export async function POST(request: Request) {
